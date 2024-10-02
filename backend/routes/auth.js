@@ -107,7 +107,7 @@ authRouter.post(
     }
 );
 
-// ROUTE 2: get loggedin user details using: POST /api/auth/getuser. Login required
+// ROUTE 3: get loggedin user details using: POST /api/auth/getuser. Login required
 authRouter.post(
     "/getuser",
     fetchuser,
