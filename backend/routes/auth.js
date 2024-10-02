@@ -1,8 +1,11 @@
 import express from "express";
 import User from "../models/User.Schema.js";
 import { body, validationResult } from "express-validator";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken'
 
 const authRouter = express.Router();
+const JWT_SECRET = 'Himynameis!123#'
 
 // create a user using POST call /api/auth/createuser. No login required.
 authRouter.post(
@@ -30,12 +33,25 @@ authRouter.post(
         if (user) {
             return res.status(400).json({ error: "Email already exists, please enter a unique email" })
         }
+
+        // hashing the password using bcrypt package
+        const salt = await bcrypt.genSalt(10);
+        const securedPass = await bcrypt.hash(req.body.password, salt);
         user = await User.create({
           name: req.body.name,
           email: req.body.email,
-          password: req.body.password,
+          password: securedPass,
         })
-        res.json({ "Success": "User Created!!" })
+
+        const data = {
+            user: {
+                id: user.id
+            }
+        }
+        
+        const authToken = jwt.sign(data, JWT_SECRET);
+
+        res.json({authToken});
     } catch (error) {
         res.status(500).send('Some error occuered');
         console.error(error.message);
